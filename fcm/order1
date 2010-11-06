@@ -34,12 +34,13 @@ sub write_file {
   close $fh;
 }
 
+my $block_number = 0;
 my $write_batch = sub {
-  my $file_number = int($i / $block_size);
-  print STDERR "Writing block $file_number\n";
+  ++$block_number;
+  print STDERR "Writing block $block_number\n";
 
-  write_file "blocks/before-$file_number", sub {&{$_[0]}("$_ " . join(' ', %{$second_words_for{$_}}), "\n") for sort keys %second_words_for};
-  write_file "blocks/after-$file_number",  sub {&{$_[0]}("$_ " . join(' ', %{$first_words_for{$_}}),  "\n") for sort keys %first_words_for};
+  write_file "blocks/before-$block_number", sub {&{$_[0]}("$_ " . join(' ', %{$second_words_for{$_}}), "\n") for sort keys %second_words_for};
+  write_file "blocks/after-$block_number",  sub {&{$_[0]}("$_ " . join(' ', %{$first_words_for{$_}}),  "\n") for sort keys %first_words_for};
   %second_words_for = %first_words_for = ();
 };
 
