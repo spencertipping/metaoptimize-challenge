@@ -32,6 +32,10 @@ each connected word we compute the replaceability with each other connected word
 
 This ends up scoring things based on similarity. We later use a hierarchical merge to combine similarities into a final result.
 
+There's an arbitrary cutoff on the connective word's frequency. If it's above a certain threshold, we don't consider it because it will have almost no impact on the results.
+
+my $maximum_frequency = 1000;
+
 my @blocks = <blocks/*>;
 
 print STDERR "Reading vocabulary\n";
@@ -46,7 +50,7 @@ for (grep ! /-connected$/, @blocks) {
   open my $new_block, '>', "$_-connected";
   for (<$block>) {
     my ($w, %links) = split;
-    if (my $count = $vocabulary{$w} and scalar(keys %links) > 1) {
+    if (my $count = $vocabulary{$w} and $count < $maximum_frequency and scalar(keys %links) > 1) {
       for my $k (keys %links) {
         print $new_block "$k $count ", join(' ', map "$_ $links{$_}", grep $_ ne $k, keys %links), "\n";
       }
