@@ -15,11 +15,6 @@
 #   We simply add the pij quantities for equal cij's, otherwise we leave them separate. Then we sort for greatest pij quantities and keep the first ten words. This new record will have the same
 #   format as the old one, but only the most relevant words will remain.
 
-my %frequencies;
-open my $vocabulary, '<', '../vocabulary.txt';
-$frequencies{$2} = $1 for grep /(\d+) (.*)$/o, <$vocabulary>;
-close $vocabulary;
-
 # Coefficients.
 # We need to configure sensible coefficients to determine how much each block contributes to the final result. For example, English text usually places adjectives before nouns; so it would make
 # sense for before- blocks to contribute more heavily than after- blocks. This isn't necessarily true for the before-connected and after-connected blocks; because we run one step in each
@@ -34,7 +29,8 @@ my $absolute_connected_after  = $connected_vs_adjacent * (1 - $before_vs_after);
 my $absolute_adjacent_before  = (1 - $connected_vs_adjacent) * $before_vs_after;
 my $absolute_adjacent_after   = (1 - $connected_vs_adjacent) * (1 - $before_vs_after);
 
-# Blocks to be merged are provided as command-line arguments and are written to stdout.
+# Blocks to be merged are provided as command-line arguments and are written to stdout. We infer the coefficient from the block name; if it's a nonstandard name, then we assume it's output from
+# this program and we don't apply a multiplier. (This is evidence that I should have put the coefficient logic into the normalizer; oh well...)
 
 my %records;
 for (@ARGV) {
