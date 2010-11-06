@@ -21,7 +21,7 @@
 # direction, these should be roughly equivalent.
 
 my $connected_vs_adjacent = 0.5;
-my $before_vs_after       = 0.8;
+my $before_vs_after       = 0.7;
 
 # Computed values:
 my $absolute_connected_before = $connected_vs_adjacent * $before_vs_after;
@@ -34,10 +34,10 @@ my $absolute_adjacent_after   = (1 - $connected_vs_adjacent) * (1 - $before_vs_a
 
 my %records;
 for (@ARGV) {
-  my $coefficient = /^before-/ && /-connected$/ ? $absolute_connected_before :
-                    /^after-/ &&  /-connected$/ ? $absolute_connected_after :
-                    /^before-/                  ? $absolute_adjacent_before :
-                    /^after-/                   ? $absolute_adjacent_after : 1;
+  my $coefficient = /before-/ && /-connected$/ ? $absolute_connected_before :
+                    /after-/ &&  /-connected$/ ? $absolute_connected_after :
+                    /before-/                  ? $absolute_adjacent_before :
+                    /after-/                   ? $absolute_adjacent_after : 1;
 
   print STDERR "Reading $_ with coefficient $coefficient\n";
   open my $file, '<', $_;

@@ -21,7 +21,7 @@ sense for before- blocks to contribute more heavily than after- blocks. This isn
 direction, these should be roughly equivalent.
 
 my $connected_vs_adjacent = 0.5;
-my $before_vs_after       = 0.8;
+my $before_vs_after       = 0.7;
 
 # Computed values:
 my $absolute_connected_before = $connected_vs_adjacent * $before_vs_after;
@@ -34,10 +34,10 @@ this program and we don't apply a multiplier. (This is evidence that I should ha
 
 my %records;
 for (@ARGV) {
-  my $coefficient = /^before-/ && /-connected$/ ? $absolute_connected_before :
-                    /^after-/ &&  /-connected$/ ? $absolute_connected_after :
-                    /^before-/                  ? $absolute_adjacent_before :
-                    /^after-/                   ? $absolute_adjacent_after : 1;
+  my $coefficient = /before-/ && /-connected$/ ? $absolute_connected_before :
+                    /after-/ &&  /-connected$/ ? $absolute_connected_after :
+                    /before-/                  ? $absolute_adjacent_before :
+                    /after-/                   ? $absolute_adjacent_after : 1;
 
   print STDERR "Reading $_ with coefficient $coefficient\n";
   open my $file, '<', $_;
