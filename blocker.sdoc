@@ -38,3 +38,5 @@ for (<>) {
   push @{$index{$_} ||= []}, @words for @words;
   &$write_a_block() unless ++$i % $split_every;
 }
+
+&$write_a_block() if $i % $split_every;
