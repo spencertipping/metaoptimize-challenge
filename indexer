@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+open my $terms, '<', 'terms.txt';
+my %words_to_numbers;
+my %numbers_to_words;
+my $word_count = 0;
+map {$numbers_to_words{$words_to_numbers{$_} ||= ++$word_count} = $_} split for <$terms>;
+close $terms;
+
+open my $terms, '<', 'terms.txt';
+my %index;
+for (<>) {
+  my @words = split;
+  for my $x (@words) {
+    ++$index[$words_to_numbers{$x}][$words_to_numbers{$_}] for @words;
+  }
+}
+
+my %sorted;
+$sorted{$_} = [sort {$index[$a] <=> $index[$b]} @{$index[$_]}] for 0 ... $#index;
+
+open my $vocabulary, '<', 'vocabulary.txt';
+for (<$vocabulary>) {
+  my ($number, $word) = @_;
+  print "$word " . join(' ', @numbers_to_words{@{$sorted[$words_to_numbers{$word}]}}), "\n";
+}
