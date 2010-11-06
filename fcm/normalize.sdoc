@@ -6,8 +6,8 @@ Here's the reduction process. Given two records belonging to the same word:
 | w c f c1 n1 c2 n2 ...
 
 We compute the normalized probability for each ci -- for example, n1 / (n1 + n2 + ... + nk). Once the probability is normalized we can divide by the frequency of the connective word. Finally,
-we divide that normalized probability by the frequency of ci in the vocabulary; this adjustment is necessary to prevent common words from being judged as more similar to everything than
-uncommon words. The end result of this step is a normalized record, and it looks like this:
+we divide that normalized probability by the frequency of ci in the vocabulary and by the frequency of the connective word; these adjustments are necessary to prevent common words from being
+judged as more similar to everything than uncommon words. The end result of this step is a normalized record, and it looks like this:
 
 | w c1 p1 c2 p2 ...
 
@@ -22,9 +22,13 @@ We normalize the frequencies:
 
 | w w1 (f1 / (f1 + f2 + ... + fk)) w2 (f2 / ...) ...
 
-Just as we do for connections, we have to divide each word's observed frequency by its overall frequency in the frequency table.
+Just as we do for connections, we have to divide each word's observed frequency by its overall frequency in the frequency table, and by the frequency of the word it comes before or after.
 
 mkdir 'normalized';
+
+open my $vocabulary, '<', '../vocabulary.txt';
+my %frequencies = map /(\d+) (.*)/ ? ($2, $1) : (), <$vocabulary>;
+close $vocabulary;
 
 for (<blocks/*>) {
   print STDERR "Processing $_\n";
@@ -37,8 +41,8 @@ for (<blocks/*>) {
       my ($w, $c, $f, %links) = split;
       my $sum = 0;
       $sum += $_ for values %links;
-      
-      print $normalized "$w ", join(' ', map "$_ " . ($links{$_} / ($sum * $f)), keys %links), "\n";
+
+      print $normalized "$w ", join(' ', map "$_ " . ($links{$_} / ($sum * $frequencies{$_} * $f)), grep $frequencies{$_}, keys %links), "\n";
     }
   } else {
     for (<$block>) {
@@ -46,7 +50,7 @@ for (<blocks/*>) {
       my $sum = 0;
       $sum += $_ for values %links;
 
-      print $normalized "$w ", join(' ', map "$_ " . ($links{$_} / $sum), keys %links), "\n";
+      print $normalized "$w ", join(' ', map "$_ " . ($links{$_} / ($sum * $frequencies{$_} * $frequencies{$w})), grep $frequencies{$_}, keys %links), "\n";
     }
   }
 
