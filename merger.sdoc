@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+
+Takes a bunch of sorted blocks and merges them. It uses an n-way mergesort to do this. If you have more than a couple thousand blocks then this program will die due to too many open
+filehandles. The simplest way to deal with that is to start merging blocks together and sorting them, e.g.
+
+| $ cat blocks/1 blocks/2 | sort > new-blocks/1
+  $ cat blocks/3 blocks/4 | sort > new-blocks/2
+  $ ...
+
+my @handles = map {open my $h, '<', $_; $h} <blocks/*>;
+my @records = map <$_>, @handles;
+
+Main loop.
+We start with one record from each file. We build a hash from records to filehandles, sort the records by string order, and grab records from the small end as long as the first word matches,
+incrementing each of the filehandles those records belong to. This collects all of the data for a given word, which we then print. Undefs sort last for obvious reasons. This is not a
+particularly efficient implementation, but I'm hoping it will be fast enough.
+
+sub first_word {(split /\s/o, $_[0])[0]}
+
+while (1) {
+  my %records_to_indexes;
+  $records_to_indexes{$records[$_]} = $_ for 0 .. $#records;
+
+  my @sorted_records = sort grep(defined, @records);
+  my $first          = first_word $sorted_records[0];
+
+  last unless defined $first;
+
+  Step 1: Merge the matching records.
+  This is actually fairly straightforward. After removing the first word we have a bunch of terms that look like word:number. We just do a hash-merge.
+
+  my %words_to_numbers;
+  my $i = 1;
+  while ($i <= $#sorted_records and first_word($sorted_records[$i]) eq $first) {
+    my ($original, @words) = split /\s+/o, $sorted_records[$i];
+    /^(.*):(\d+)$/ and $words_to_numbers{$1} += $2 for @words;
+  }
+
+  Step 2. Find the top ten words.
+
+  print "$first ", join(' ', grep defined, (sort {$words_to_numbers{$a} <=> $words_to_numbers{$b}} keys %words_to_numbers)[0 .. 9]), "\n";
+
+  Step 3. Increment filehandles.
+  This is easy. We already have the records to process; all we have to do is reverse-map them into indexes for filehandles and records, and do the updates:
+
+  $records[$_] = <$handles[$_]> for map $records_to_indexes{$_}, @to_process;
+}
+
+close $_ for @handles;

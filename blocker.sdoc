@@ -23,10 +23,10 @@ my $write_a_block = sub {
   print STDERR "Writing block " . int($i / $split_every) . "\n";
   open my $block, '>', 'blocks/' . int($i / $split_every);
 
-  for (sort keys %index) {
+  for my $k (sort keys %index) {
     my %fs;
-    ++$fs{$_} for @{$index{$_}};
-    print $block ${$index{$_}}[0] . ' ' . join(' ', map "$_:$fs{$_}", keys %fs) . "\n";
+    ++$fs{$_} for @{$index{$k}};
+    print $block "$k " . join(' ', map "$_:$fs{$_}", keys %fs) . "\n";
   }
 
   close $block;
@@ -34,8 +34,8 @@ my $write_a_block = sub {
 };
 
 for (<>) {
-  my @words = split;
-  push @{$index{$_} ||= []}, @words for @words;
+  my ($w, @words) = split;
+  push @{$index{$w} ||= []}, @words for @words;
   &$write_a_block() unless ++$i % $split_every;
 }
 
