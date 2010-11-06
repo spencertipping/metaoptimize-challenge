@@ -36,7 +36,7 @@ my @blocks = <blocks/*>;
 
 print STDERR "Reading vocabulary\n";
 open my $vocabulary_file, '<', '../vocabulary.txt';
-my %vocabulary = map /\d+ .*$/ ? ($2, $1) : (), <$vocabulary_file>;
+my %vocabulary = map /(\d+) (.*)$/ ? ($2, $1) : (), <$vocabulary_file>;
 close $vocabulary_file;
 
 for (grep ! /-connected$/, @blocks) {
