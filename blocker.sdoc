@@ -10,7 +10,7 @@ isomorphic to real numbers, it inherits commutativity and associativity. Therefo
 
   | foo bar:511
 
-  The rows are not necessarily sorted.
+  All of the rows are sorted within the file, but the words on each line are not necessarily sorted.
 
 mkdir 'blocks';
 
@@ -34,8 +34,8 @@ my $write_a_block = sub {
 };
 
 for (<>) {
-  my ($w, @words) = split;
-  push @{$index{$w} ||= []}, @words for @words;
+  my @words = split;
+  push @{$index{$_} ||= []}, @words for @words;
   &$write_a_block() unless ++$i % $split_every;
 }
 
