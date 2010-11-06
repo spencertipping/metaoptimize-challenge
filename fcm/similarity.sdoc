@@ -46,7 +46,7 @@ for (grep ! /-connected$/, @blocks) {
   open my $new_block, '>', "$_-connected";
   for (<$block>) {
     my ($w, %links) = split;
-    if (my $count = $vocabulary{$w}) {
+    if (my $count = $vocabulary{$w} and scalar(keys %links) > 2) {
       for my $k (keys %links) {
         print $new_block "$k $count ", join(' ', map "$_ $links{$_}", grep $_ ne $k, keys %links), "\n";
       }
