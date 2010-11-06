@@ -26,15 +26,17 @@ Implementation.
 The program is implemented a bit backwards. We read the vocabulary words into a hash, where each word points to its frequency. Then we go through the before and after blocks sequentially. For
 each connected word we compute the replaceability with each other connected word, noting the frequency of the connector. We end up with a table that looks like this:
 
-| monkey 10 penguin 1 zucchini 1
-  penguin 10 monkey 8 zucchini 1
-  zucchini 10 monkey 8 penguin 1
+| monkey proboscis 10 penguin 1 zucchini 1
+  penguin proboscis 10 monkey 8 zucchini 1
+  zucchini proboscis 10 monkey 8 penguin 1
 
 This ends up scoring things based on similarity. We later use a hierarchical merge to combine similarities into a final result.
 
-There's an arbitrary cutoff on the connective word's frequency. If it's above a certain threshold, we don't consider it because it will have almost no impact on the results.
+There's an arbitrary cutoff on the connective word's frequency. If it's above a certain threshold, we don't consider it because it will have almost no impact on the results. Same for the
+linkages; words with too many alternative linkages will create huge files and contain little information.
 
 my $maximum_frequency = 1000;
+my $maximum_linkages  = 20;
 
 my @blocks = <blocks/*>;
 
@@ -50,9 +52,10 @@ for (grep ! /-connected$/, @blocks) {
   open my $new_block, '>', "$_-connected";
   for (<$block>) {
     my ($w, %links) = split;
-    if (my $count = $vocabulary{$w} and $count < $maximum_frequency and scalar(keys %links) > 1) {
+    my ($count, $links) = ($vocabulary{$w}, scalar(keys %links));
+    if ($count and $count < $maximum_frequency and $links > 1 and $links < $maximum_linkages) {
       for my $k (keys %links) {
-        print $new_block "$k $count ", join(' ', map "$_ $links{$_}", grep $_ ne $k, keys %links), "\n";
+        print $new_block "$k $w $count ", join(' ', map "$_ $links{$_}", grep $_ ne $k, keys %links), "\n";
       }
     }
   }
