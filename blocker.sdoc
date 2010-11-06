@@ -23,7 +23,7 @@ my $write_a_block = sub {
   print STDERR "Writing block " . int($i / $split_every) . "\n";
   open my $block, '>', 'blocks/' . int($i / $split_every);
 
-  for (keys %index) {
+  for (sort keys %index) {
     my %fs;
     ++$fs{$_} for @{$index{$_}};
     print $block ${$index{$_}}[0] . ' ' . join(' ', map "$_:$fs{$_}", keys %fs) . "\n";
