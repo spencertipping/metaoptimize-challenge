@@ -20,14 +20,10 @@
 # sense for before- blocks to contribute more heavily than after- blocks. This isn't necessarily true for the before-connected and after-connected blocks; because we run one step in each
 # direction, these should be roughly equivalent.
 
-my $connected_vs_adjacent = 0.5;
-my $before_vs_after       = 0.7;
-
-# Computed values:
-my $absolute_connected_before = $connected_vs_adjacent * $before_vs_after;
-my $absolute_connected_after  = $connected_vs_adjacent * (1 - $before_vs_after);
-my $absolute_adjacent_before  = (1 - $connected_vs_adjacent) * $before_vs_after;
-my $absolute_adjacent_after   = (1 - $connected_vs_adjacent) * (1 - $before_vs_after);
+my $absolute_connected_before = 0.25;
+my $absolute_connected_after  = 0.25;
+my $absolute_adjacent_before  = 0.35;
+my $absolute_adjacent_after   = 0.15;
 
 # Blocks to be merged are provided as command-line arguments and are written to stdout. We infer the coefficient from the block name; if it's a nonstandard name, then we assume it's output from
 # this program and we don't apply a multiplier. (This is evidence that I should have put the coefficient logic into the normalizer; oh well...)
