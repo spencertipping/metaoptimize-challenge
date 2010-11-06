@@ -39,7 +39,7 @@ open my $vocabulary_file, '<', '../vocabulary.txt';
 my %vocabulary = map /\d+ .*$/ ? ($2, $1) : (), <$vocabulary_file>;
 close $vocabulary_file;
 
-for (@blocks) {
+for (grep ! /-connected$/, @blocks) {
   print STDERR "Processing $_\n";
 
   open my $block, '<', $_;
