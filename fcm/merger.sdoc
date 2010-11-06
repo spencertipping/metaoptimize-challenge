@@ -38,11 +38,12 @@ Blocks to be merged are provided as command-line arguments and are written to st
 
 my %records;
 for (@ARGV) {
-  print STDERR "Reading $_\n";
   my $coefficient = /^before-/ && /-connected$/ ? $absolute_connected_before :
-                                  /-connected$/ ? $absolute_connected_after :
+                    /^after-/ &&  /-connected$/ ? $absolute_connected_after :
                     /^before-/                  ? $absolute_adjacent_before :
-                                                  $absolute_adjacent_after;
+                    /^after-/                   ? $absolute_adjacent_after : 1;
+
+  print STDERR "Reading $_ with coefficient $coefficient\n";
   open my $file, '<', $_;
   for (<$file>) {
     my ($w, %links) = split;
@@ -57,5 +58,5 @@ Now write the new normalized records in sorted order:
 for my $w (sort keys %records) {
   my %record = %{$records{$w}};
   my @keys   = sort {$record{$b} <=> $record{$a}} keys %record;
-  print "$w ", join(' ', grep defined, @keys[0 .. 9]), "\n";
+  print "$w ", join(' ', map "$_ $record{$_}", grep defined, @keys[0 .. 9]), "\n";
 }
