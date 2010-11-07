@@ -1,0 +1,1 @@
+sdocp('format.sdoc', '#!/usr/bin/perl\n\nOutput formatter.\nThis is a surface-level program that just removes the relevance numbers from the post-merge normalized output.\n\nfor (<>) {\n  my ($w, %ws) = split;\n  print "$w ", keys %ws, "\\n";\n}\n');
